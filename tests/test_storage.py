@@ -1,4 +1,5 @@
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+import multiprocessing
 import math
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -8,6 +9,11 @@ from unittest.mock import patch
 import pandas as pd
 
 from studio.storage import CsvStore, StorageError
+
+
+def _process_order(args):
+    path, index = args
+    return CsvStore(path).add_order(client=f"Process {index}", product="Polo", quantity=1, stitches=1000, net_amount=20, status="Nowe", document="FV")
 
 
 class StorageTests(unittest.TestCase):
@@ -109,6 +115,14 @@ class StorageTests(unittest.TestCase):
             ids = list(pool.map(add, range(18)))
         self.assertEqual(len(set(ids)), 18)
         self.assertEqual(set(self.store.orders().id), set(ids))
+
+    def test_spawned_processes_do_not_lose_orders(self):
+        # Spawn is also used on Windows; these writers do not share Python locks.
+        with ProcessPoolExecutor(max_workers=3, mp_context=multiprocessing.get_context("spawn")) as pool:
+            ids = list(pool.map(_process_order, [(str(self.path), index) for index in range(12)]))
+        frame = self.store.orders()
+        self.assertEqual(len(frame), 12)
+        self.assertEqual(set(frame.id), set(ids))
 
 
 if __name__ == "__main__":

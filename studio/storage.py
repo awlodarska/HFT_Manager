@@ -7,7 +7,6 @@ optional empty values get safe display defaults; no existing rows are dropped.
 
 from contextlib import contextmanager
 from datetime import datetime
-import fcntl
 from math import isfinite
 import os
 from pathlib import Path
@@ -15,6 +14,7 @@ import tempfile
 from uuid import uuid4
 
 import pandas as pd
+from filelock import FileLock, Timeout
 
 
 ORDER_STATUSES = ("Nowe", "W produkcji", "Gotowe", "Zrealizowane", "Anulowane")
@@ -60,12 +60,12 @@ class CsvStore:
     @contextmanager
     def _lock(self, *, write: bool = False):
         try:
-            with (self.data_dir / ".storage.lock").open("a") as lock:
-                fcntl.flock(lock, fcntl.LOCK_EX if write else fcntl.LOCK_SH)
-                try:
-                    yield
-                finally:
-                    fcntl.flock(lock, fcntl.LOCK_UN)
+            # Use an OS-backed lock on Windows as well as Unix. Reads are
+            # exclusive too, so all sessions share one portable protocol.
+            with FileLock(str(self.data_dir / ".storage.lock"), timeout=15):
+                yield
+        except Timeout as exc:
+            raise StorageError("Pliki danych są zajęte przez inną operację. Spróbuj ponownie za chwilę.") from exc
         except OSError as exc:
             raise StorageError("Nie można odczytać lub zapisać CSV. Sprawdź uprawnienia i wolne miejsce.") from exc
 

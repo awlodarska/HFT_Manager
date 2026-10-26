@@ -4,7 +4,21 @@ Przestrzeń do zarządzania hafciarnią: produkcja, koszty, analityka i wycena w
 
 ## Uruchomienie
 
-Python **3.11 lub nowszy**, Linux lub macOS (blokowanie plików wykorzystuje `fcntl`). W środowisku chmurowym używaj istniejącego katalogu repozytorium, bez tworzenia dodatkowego worktree.
+Python **3.11 lub 3.12**, Windows, Linux lub macOS. Blokady plików obsługuje wieloplatformowa biblioteka `filelock`; na Windowsie nie potrzebujesz WSL. W środowisku chmurowym używaj istniejącego katalogu repozytorium, bez tworzenia dodatkowego worktree.
+
+### Windows — PowerShell
+
+Otwórz PowerShell w rozpakowanym folderze aplikacji (tam, gdzie jest `app.py`):
+
+```powershell
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m streamlit run app.py
+```
+
+Jeśli masz już środowisko `.venv`, pomiń pierwszy krok. Zatrzymaj działającą aplikację przez Ctrl+C przed aktualizacją. Aby sprawdzić instalację, uruchom `.\.venv\Scripts\python.exe -m unittest discover -s tests -v`. W Git Bash odpowiednikiem ścieżki do Pythona jest `.venv/Scripts/python.exe`. Nie kopiuj `.venv` z Linuxa na Windows.
+
+### Linux / macOS / środowisko chmurowe
 
 ```bash
 cd /workspace/HFT_Manager
