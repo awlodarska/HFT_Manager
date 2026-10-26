@@ -6,7 +6,15 @@ Przestrzeń do zarządzania hafciarnią: produkcja, koszty, analityka i wycena w
 
 Python **3.11 lub 3.12**, Windows, Linux lub macOS. Blokady plików obsługuje wieloplatformowa biblioteka `filelock`; na Windowsie nie potrzebujesz WSL. W środowisku chmurowym używaj istniejącego katalogu repozytorium, bez tworzenia dodatkowego worktree.
 
-### Windows — PowerShell
+### Windows — dwuklik
+
+Kliknij dwukrotnie **`Uruchom_HFT.bat`** w folderze aplikacji. Plik uruchamia Pythona z lokalnego `.venv`, doinstalowuje brakujace biblioteki i otwiera panel w domyślnej przeglądarce. Przy pierwszej instalacji potrzebujesz Pythona 3.11 lub 3.12 oraz internetu do pobrania bibliotek. Skrypt nie pobiera ani nie instaluje samego Pythona.
+
+Możesz utworzyć skrót do tego pliku na Pulpicie; sam plik pozostaw przy `app.py`. Zostaw okno uruchomienia otwarte podczas pracy. Ctrl+C zatrzymuje aplikację; zamknięcie samej karty przeglądarki jej nie zatrzymuje. Panel działa pod `http://localhost:8502` i nasłuchuje wyłącznie na tym komputerze. Jeśli działa już poprzednia instancja na tym porcie, zamknij jej okno przed kolejnym uruchomieniem. Dane zostają w katalogu `data/` także po zamknięciu programu.
+
+To wygodny lokalny start, nie hosting internetowy: komputer musi pozostać włączony, a skrypt uruchomiony. Jeśli panel ma działać przy wyłączonym komputerze, potrzebuje oddzielnego serwera z logowaniem, HTTPS i trwałym dyskiem.
+
+### Windows — ręcznie w PowerShell
 
 Otwórz PowerShell w rozpakowanym folderze aplikacji (tam, gdzie jest `app.py`):
 
