@@ -1,0 +1,5 @@
+streamlit==1.50.0
+pandas==2.2.3
+plotly==6.3.1
+# Compatible numerical runtime for Pandas 2.2.
+numpy==2.2.6
