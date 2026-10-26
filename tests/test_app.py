@@ -41,27 +41,22 @@ class ApplicationTests(unittest.TestCase):
         app.radio(key="navigation").set_value(page).run()
         self.assert_no_exception(app)
 
-    def own_data(self, app):
-        app.toggle(key="workspace_mode").set_value(False).run()
-        self.assert_no_exception(app)
-
-    def test_demo_is_read_only_and_never_writes_csv(self):
+    def test_new_workspace_is_empty_and_ready_for_real_entries(self):
         app = self.new_app()
-        self.assertTrue(app.toggle(key="workspace_mode").value)
-        self.assertEqual(len(app.get("plotly_chart")), 2)
+        self.assertEqual(len(app.toggle), 0)
+        self.assertEqual(len(app.get("plotly_chart")), 0)
+        self.assertFalse(any("Podgląd demo" in item.value for item in app.markdown))
         self.navigate(app, PAGES[1])
-        self.assertTrue(self.widget(app.button, "Dodaj zlecenie").disabled)
-        self.assertTrue(self.widget(app.text_input, "Nazwa klienta").disabled)
-        self.assertTrue(all(button.disabled for button in app.button if button.label in {"Zapisz status", "Usuń zlecenie"}))
+        self.assertFalse(self.widget(app.button, "Dodaj zlecenie").disabled)
+        self.assertFalse(self.widget(app.text_input, "Nazwa klienta").disabled)
+        self.assertEqual(len(app.expander), 0)
         self.navigate(app, PAGES[2])
-        self.assertTrue(self.widget(app.button, "Zapisz wydatek").disabled)
-        self.assertTrue(self.widget(app.button, "Usuń wydatek").disabled)
-        self.assertEqual(len(app.get("plotly_chart")), 1)
+        self.assertFalse(self.widget(app.button, "Zapisz wydatek").disabled)
+        self.assertEqual(len(app.get("plotly_chart")), 0)
         self.assertEqual(list(self.data_dir.glob("*.csv")), [])
 
     def test_empty_dashboard_and_complete_order_lifecycle(self):
         app = self.new_app()
-        self.own_data(app)
         self.assertEqual(len(app.error), 0)
         self.assertEqual(len(app.get("plotly_chart")), 0)
         self.navigate(app, PAGES[1])
@@ -93,9 +88,9 @@ class ApplicationTests(unittest.TestCase):
         self.assert_no_exception(app)
         self.assertEqual(pd.read_csv(self.data_dir / "orders.csv").iloc[0]["status"], "Zrealizowane")
 
-        # A fresh session sees persisted data and leaves demo mode automatically.
+        # A fresh session sees persisted data without a sample-data toggle.
         reloaded = self.new_app()
-        self.assertFalse(reloaded.toggle(key="workspace_mode").value)
+        self.assertEqual(len(reloaded.toggle), 0)
         self.assertEqual(len(reloaded.get("plotly_chart")), 2)
         self.navigate(reloaded, PAGES[1])
         self.assertTrue(reloaded.button(key=f"delete_{oid}").disabled)
@@ -107,7 +102,6 @@ class ApplicationTests(unittest.TestCase):
 
     def test_expense_write_reload_and_confirmed_delete(self):
         app = self.new_app()
-        self.own_data(app)
         self.navigate(app, PAGES[2])
         self.widget(app.selectbox, "Kategoria").select("Nici i akcesoria")
         self.widget(app.text_input, "Dostawca").set_value("Dostawca Testowy")
@@ -121,7 +115,7 @@ class ApplicationTests(unittest.TestCase):
         self.assertEqual(len(app.get("plotly_chart")), 1)
 
         reloaded = self.new_app()
-        self.assertFalse(reloaded.toggle(key="workspace_mode").value)
+        self.assertEqual(len(reloaded.toggle), 0)
         self.navigate(reloaded, PAGES[2])
         self.assertTrue(self.widget(reloaded.button, "Usuń wydatek").disabled)
         self.widget(reloaded.checkbox, "Potwierdzam usunięcie wydatku").check().run()

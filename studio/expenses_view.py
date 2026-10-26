@@ -10,15 +10,15 @@ from studio.storage import COST_CATEGORIES, CsvStore, StorageError
 from studio.ui import PALETTE, chart_layout, empty_state, money, section, show_chart
 
 
-def render_expenses(store: CsvStore, expenses: pd.DataFrame, demo: bool) -> None:
+def render_expenses(store: CsvStore, expenses: pd.DataFrame) -> None:
     entry, chart = st.columns([1, 1.6], gap="large")
     with entry:
         with st.form("new_expense", clear_on_submit=True):
             section("Dodaj wydatek", "Kwoty zapisujemy w wartości brutto")
-            category = st.selectbox("Kategoria", COST_CATEGORIES, disabled=demo)
-            supplier = st.text_input("Dostawca", placeholder="np. Hurtownia Tkanin", max_chars=200, disabled=demo)
-            amount = st.number_input("Kwota brutto (zł)", min_value=0.0, max_value=100_000_000.0, value=0.0, step=10.0, format="%.2f", disabled=demo)
-            if st.form_submit_button("Zapisz wydatek", type="primary", use_container_width=True, disabled=demo):
+            category = st.selectbox("Kategoria", COST_CATEGORIES)
+            supplier = st.text_input("Dostawca", placeholder="np. Hurtownia Tkanin", max_chars=200)
+            amount = st.number_input("Kwota brutto (zł)", min_value=0.0, max_value=100_000_000.0, value=0.0, step=10.0, format="%.2f")
+            if st.form_submit_button("Zapisz wydatek", type="primary", width="stretch"):
                 try:
                     store.add_expense(category=category, supplier=supplier, gross_amount=amount)
                     flash("Wydatek został zapisany.")
@@ -58,9 +58,9 @@ def render_expenses(store: CsvStore, expenses: pd.DataFrame, demo: bool) -> None
             with st.expander("Usuń błędny wpis"):
                 ids = ordered["id"].tolist()
                 labels = {row["id"]: f'{row["created_at"]:%d.%m.%Y} · {row["supplier"]} · {money(row["gross_amount"])} · #{row["id"][:8]}' for _, row in ordered.iterrows()}
-                selected_id = st.selectbox("Wybierz wydatek", ids, format_func=labels.get, disabled=demo)
-                confirmed = st.checkbox("Potwierdzam usunięcie wydatku", key=f"confirm_expense_{selected_id}", disabled=demo)
-                if st.button("Usuń wydatek", disabled=demo or not confirmed):
+                selected_id = st.selectbox("Wybierz wydatek", ids, format_func=labels.get)
+                confirmed = st.checkbox("Potwierdzam usunięcie wydatku", key=f"confirm_expense_{selected_id}")
+                if st.button("Usuń wydatek", disabled=not confirmed):
                     try:
                         if store.delete_expense(selected_id):
                             flash("Wydatek został usunięty.")
@@ -68,4 +68,4 @@ def render_expenses(store: CsvStore, expenses: pd.DataFrame, demo: bool) -> None
                             st.warning("Wydatek już nie istnieje. Odśwież listę.")
                     except StorageError as exc:
                         st.error(str(exc))
-        st.download_button("Eksportuj koszty CSV", csv_export(expenses), file_name="hft_koszty_demo.csv" if demo else "hft_koszty.csv", mime="text/csv", icon=":material/download:")
+        st.download_button("Eksportuj koszty CSV", csv_export(expenses), file_name="hft_koszty.csv", mime="text/csv", icon=":material/download:")

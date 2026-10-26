@@ -24,7 +24,7 @@ def flash(message: str) -> None:
     st.rerun()
 
 
-def order_card(store: CsvStore, row: pd.Series, demo: bool) -> None:
+def order_card(store: CsvStore, row: pd.Series) -> None:
     oid = row["id"]
     initials = "".join(word[0] for word in row["client"].split()[:2]).upper()
     with st.container(border=True):
@@ -37,8 +37,8 @@ def order_card(store: CsvStore, row: pd.Series, demo: bool) -> None:
             f'<div class="order-meta">Dokument: {escape(row["document"])}</div>', unsafe_allow_html=True,
         )
         with st.expander("Zarządzaj zleceniem"):
-            status = st.selectbox("Status zlecenia", ORDER_STATUSES, index=ORDER_STATUSES.index(row["status"]), key=f"status_{oid}", disabled=demo)
-            if st.button("Zapisz status", key=f"save_{oid}", disabled=demo, width="stretch"):
+            status = st.selectbox("Status zlecenia", ORDER_STATUSES, index=ORDER_STATUSES.index(row["status"]), key=f"status_{oid}")
+            if st.button("Zapisz status", key=f"save_{oid}", width="stretch"):
                 try:
                     if store.update_order_status(oid, status):
                         flash("Status zlecenia został zaktualizowany.")
@@ -46,8 +46,8 @@ def order_card(store: CsvStore, row: pd.Series, demo: bool) -> None:
                         st.warning("To zlecenie zostało już usunięte. Odśwież listę.")
                 except (StorageError, ValueError) as exc:
                     st.error(str(exc))
-            confirmed = st.checkbox("Potwierdzam usunięcie", key=f"confirm_{oid}", disabled=demo)
-            if st.button("Usuń zlecenie", key=f"delete_{oid}", disabled=demo or not confirmed, width="stretch"):
+            confirmed = st.checkbox("Potwierdzam usunięcie", key=f"confirm_{oid}")
+            if st.button("Usuń zlecenie", key=f"delete_{oid}", disabled=not confirmed, width="stretch"):
                 try:
                     if store.delete_order(oid):
                         flash("Zlecenie zostało usunięte.")
@@ -57,23 +57,23 @@ def order_card(store: CsvStore, row: pd.Series, demo: bool) -> None:
                     st.error(str(exc))
 
 
-def render_orders(store: CsvStore, orders: pd.DataFrame, demo: bool) -> None:
+def render_orders(store: CsvStore, orders: pd.DataFrame) -> None:
     form_col, info = st.columns([2.1, 1], gap="large")
     with form_col:
         with st.form("new_order", clear_on_submit=True):
             section("Nowe zlecenie", "Szczegóły produkcji w jednym miejscu", "PRODUKCJA")
-            client = st.text_input("Nazwa klienta", placeholder="np. Studio Forma", max_chars=200, disabled=demo)
+            client = st.text_input("Nazwa klienta", placeholder="np. Studio Forma", max_chars=200)
             left, right = st.columns(2)
             with left:
-                product = st.selectbox("Typ produktu", PRODUCTS, disabled=demo)
-                quantity = st.number_input("Ilość sztuk", min_value=1, max_value=1_000_000, value=10, step=1, disabled=demo)
-                amount = st.number_input("Kwota netto całego zlecenia (zł)", min_value=0.0, max_value=100_000_000.0, value=0.0, step=10.0, format="%.2f", disabled=demo)
+                product = st.selectbox("Typ produktu", PRODUCTS)
+                quantity = st.number_input("Ilość sztuk", min_value=1, max_value=1_000_000, value=10, step=1)
+                amount = st.number_input("Kwota netto całego zlecenia (zł)", min_value=0.0, max_value=100_000_000.0, value=0.0, step=10.0, format="%.2f")
             with right:
-                status = st.selectbox("Status zlecenia", ORDER_STATUSES, disabled=demo)
-                stitches = st.number_input("Szacowane wkłucia na sztukę", min_value=0, max_value=100_000_000, value=12000, step=1000, disabled=demo)
-                invoice = st.toggle("Faktura VAT (FV)", value=True, help="Wyłącz, aby wybrać paragon. To oznaczenie dokumentu, a nie wystawianie faktury.", disabled=demo)
+                status = st.selectbox("Status zlecenia", ORDER_STATUSES)
+                stitches = st.number_input("Szacowane wkłucia na sztukę", min_value=0, max_value=100_000_000, value=12000, step=1000)
+                invoice = st.toggle("Faktura VAT (FV)", value=True, help="Wyłącz, aby wybrać paragon. To oznaczenie dokumentu, a nie wystawianie faktury.")
                 st.caption("FV" if invoice else "Paragon")
-            submitted = st.form_submit_button("Dodaj zlecenie", type="primary", width="stretch", disabled=demo)
+            submitted = st.form_submit_button("Dodaj zlecenie", type="primary", width="stretch")
             if submitted:
                 try:
                     oid = store.add_order(client=client, product=product, quantity=quantity, stitches=stitches, net_amount=amount, status=status, document="FV" if invoice else "Paragon")
@@ -111,6 +111,6 @@ def render_orders(store: CsvStore, orders: pd.DataFrame, demo: bool) -> None:
             columns = st.columns(3, gap="medium")
             for column, (_, row) in zip(columns, rows[offset:offset + 3]):
                 with column:
-                    order_card(store, row, demo)
+                    order_card(store, row)
         st.caption(f"Wyświetlono {min(limit, len(filtered))} z {len(filtered)} zleceń pasujących do filtrów.")
-    st.download_button("Eksportuj zlecenia CSV", csv_export(filtered), file_name="hft_zlecenia_demo.csv" if demo else "hft_zlecenia.csv", mime="text/csv", icon=":material/download:")
+    st.download_button("Eksportuj zlecenia CSV", csv_export(filtered), file_name="hft_zlecenia.csv", mime="text/csv", icon=":material/download:")

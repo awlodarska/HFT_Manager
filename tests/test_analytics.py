@@ -8,7 +8,6 @@ import pandas as pd
 from studio.analytics import (
     daily_revenue, expense_categories, filter_period, period_start, sold_products, summarize,
 )
-from studio.demo import demo_data
 
 
 class AnalyticsTests(unittest.TestCase):
@@ -58,15 +57,6 @@ class AnalyticsTests(unittest.TestCase):
     def test_invalid_dates_ignored_and_timezone_mixture_supported(self):
         frame = pd.DataFrame({"created_at": ["bad", None, "2026-10-03T12:00:00+02:00", "2026-10-03"]})
         self.assertEqual(len(filter_period(frame, pd.Timestamp("2026-10-03"))), 2)
-
-    def test_demo_is_disposable_and_deterministic(self):
-        first_orders, first_expenses = demo_data()
-        second_orders, second_expenses = demo_data()
-        pd.testing.assert_frame_equal(first_orders, second_orders)
-        pd.testing.assert_frame_equal(first_expenses, second_expenses)
-        self.assertGreaterEqual(len(first_orders), 30)
-        self.assertGreater((first_orders["created_at"].max() - first_orders["created_at"].min()).days, 120)
-        self.assertEqual(summarize(first_orders, first_expenses)["in_progress"], 5)
 
 
 if __name__ == "__main__":

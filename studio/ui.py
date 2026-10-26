@@ -42,9 +42,6 @@ html, body, [class*="css"] { font-family: Inter, -apple-system, BlinkMacSystemFo
 .stApp p.page-subtitle { color: #939DB0; font-size: 13px !important; line-height: 1.7; margin: 0 0 12px !important; }
 .top-meta { text-align: right; padding-top: 8px; color: #A3ADC0; font-size: 12px; }
 .top-meta span { display: block; font-size: 10px; color: #69768E; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px; }
-.demo-note { display: flex; align-items: center; gap: 9px; color: #D8C19D; background: #211F1C; border: 1px solid #40382C;
- padding: 12px 16px; border-radius: 10px; font-size: 12px; line-height: 1.5; margin-bottom: 6px; }
-.demo-note b { color: #F0D3A7; }
 .metric-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 16px; margin: 12px 0 22px; }
 .metric-card { background: linear-gradient(135deg,#191F29,#141923); border: 1px solid #29303D; border-radius: 15px; padding: 19px 20px; min-height: 143px; }
 .metric-card.featured { background: linear-gradient(135deg,#2D2A24,#1D1D1F); border-color: #514330; }
@@ -101,7 +98,6 @@ button[kind="primary"], [data-testid="stBaseButton-primaryFormSubmit"] { font-we
 .table-label { color: #748199; text-transform: uppercase; letter-spacing: 1px; font-size: 9px; font-weight: 600; }
 .footer-note { border-top: 1px solid #222A38; padding-top: 16px; margin-top: 24px; font-size: 10px; color: #64728B;
  display: flex; justify-content: space-between; gap: 12px; }
-.st-key-workspace_mode { margin-top: 12px; }
 @media (max-width: 1000px) {
  [data-testid="stMainBlockContainer"] { padding: 2rem 1.5rem; }
  .metric-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
