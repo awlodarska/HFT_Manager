@@ -76,6 +76,14 @@ Zapis korzysta z blokady obejmującej odczyt i aktualizację oraz atomowego `os.
 
 Regularnie kopiuj katalog danych na trwały nośnik. Nie edytuj CSV ręcznie podczas działania aplikacji. To narzędzie dla zaufanej pracowni, bez logowania i separacji kont: przed udostępnieniem w publicznym Internecie zastosuj uwierzytelnianie na serwerze/proxy i HTTPS. Nie używaj współdzielonego dysku sieciowego bez sprawdzenia obsługi blokad i atomowej podmiany plików.
 
+### Kopie zapasowe na Windowsie
+
+Od tej wersji `Uruchom_HFT.bat` wykonuje kopię przed każdym startem aplikacji. Powstaje archiwum ZIP w folderze `backups/`, np. `HFT_Studio_kopia_2026-10-26_19-00-00_123456.zip`. Archiwum zawiera `orders.csv`, `expenses.csv` oraz plik z sumami kontrolnymi. Jeśli nie masz jeszcze żadnego wpisu, kopia nie jest tworzona. Nie usuwamy automatycznie starszych archiwów.
+
+Możesz też dwukrotnie kliknąć `Kopia_HFT.bat`, aby utworzyć kopię od razu. Po pierwszym sprawdzonym uruchomieniu aplikacji kliknij raz `Zainstaluj_codzienny_backup.bat` i potwierdź — Windows utworzy codzienną kopię o 19:00 dla Twojego konta. Komputer musi być wtedy włączony albo uśpiony w sposób pozwalający Harmonogramowi zadań na uruchomienie zadania. Godzinę lub zadanie zmienisz w aplikacji Windows **Harmonogram zadań**, pod nazwą `HFT Studio OS - codzienna kopia`.
+
+Najważniejsze: kopiuj też okresowo folder `backups` poza komputer, np. na dysk USB lub do prywatnego folderu OneDrive/Google Drive. Kopie znajdujące się wyłącznie na tym samym dysku nie chronią przed awarią, kradzieżą lub uszkodzeniem komputera. Aby odzyskać dane, zatrzymaj aplikację, zachowaj uszkodzone pliki i wypakuj `orders.csv` oraz `expenses.csv` z wybranej kopii ZIP do folderu `data/`.
+
 ## Prywatny panel pod własną domeną
 
 Docelowy adres może mieć postać `panel.hftstudio.pl`. Strona dla klientów na `hftstudio.pl` może pozostać u obecnego dostawcy. Osobny rekord DNS subdomeny kieruje wtedy do serwera aplikacji; nie trzeba zmieniać domeny głównej, poczty ani przenosić strony.

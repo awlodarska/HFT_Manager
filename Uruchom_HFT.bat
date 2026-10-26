@@ -35,6 +35,8 @@ if /I "%~1"=="--check" (
     echo Python i biblioteki sa gotowe.
     exit /b 0
 )
+".venv\Scripts\python.exe" -m studio.backup
+if errorlevel 1 echo UWAGA: Nie udalo sie utworzyc kopii zapasowej. Aplikacja zostanie uruchomiona mimo to.
 echo.
 echo HFT Studio OS - aplikacja otworzy sie w przegladarce.
 echo Pozostaw to okno otwarte podczas pracy. Zatrzymanie: Ctrl+C.
